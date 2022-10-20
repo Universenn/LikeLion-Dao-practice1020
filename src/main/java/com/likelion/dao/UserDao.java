@@ -70,13 +70,37 @@ public class UserDao {
 //        c.close();
 //    }
     public void deleteAll() throws SQLException, ClassNotFoundException {
-        Connection conn = connectionMaker.makeConnection();
+//        Connection conn = connectionMaker.makeConnection();
+        Connection c = null;
+        PreparedStatement ps = null;
+        // connection, PreparedStatement할때 에러가 나도 ps.close(), c.close()를 하기 위한 처리
+        try {
+            c = connectionMaker.makeConnection();
+            ps = c.prepareStatement("DELETE FROM users");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally { // error 가 나도 실행되는 블럭
+            if (ps != null){
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-        PreparedStatement ps = conn.prepareStatement("DELETE FROM users");
-        ps.executeUpdate();
-
-        ps.close();
-        conn.close();
+        }
+//        예외처리
+//        ps.executeUpdate();
+//
+//        ps.close();
+//        conn.close();
     }
 
 //    public int getCount() throws SQLException {
@@ -94,19 +118,44 @@ public class UserDao {
 //        return count;
 //    }
     public int getCount() throws SQLException, ClassNotFoundException {
-        Connection conn = connectionMaker.makeConnection();
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-        PreparedStatement ps = conn.prepareStatement("SELECT count(*) FROM users");
+        try {
+            c = connectionMaker.makeConnection();
+            ps = c.prepareStatement("SELECT count(*) FROM users");
 
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int count = rs.getInt(1);
+            rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally { // error 가 나도 실행되는 블럭
+            if (rs!= null){
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (ps != null){
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-        rs.close();
-        ps.close();
-        conn.close();
+        }
 
-        return count;
     }
 
     public static void main(String[] args) throws SQLException {
