@@ -16,7 +16,7 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
-    //    public Connection makeConnection() throws SQLException {
+//        public Connection makeConnection() throws SQLException {
 //        Map<String, String> env = System.getenv();
 //        Connection c = DriverManager.getConnection(
 //                env.get("DB_HOST"),env.get("DB_USER"),env.get("DB_PASSWORD")
@@ -61,19 +61,42 @@ public class UserDao {
         return user;
     }
 
-    public void deleteAll() throws SQLException {
-        Connection c = connectionMaker.makeConnection();
-        PreparedStatement ps = c.prepareStatement(
-                "delete from users");
+//    public void deleteAll() throws SQLException {
+//        Connection c = connectionMaker.makeConnection();
+//        PreparedStatement ps = c.prepareStatement("DELETE FROM users");
+//        ps.executeUpdate();
+//
+//        ps.close();
+//        c.close();
+//    }
+    public void deleteAll() throws SQLException, ClassNotFoundException {
+        Connection conn = connectionMaker.makeConnection();
+
+        PreparedStatement ps = conn.prepareStatement("DELETE FROM users");
         ps.executeUpdate();
+
         ps.close();
-        c.close();
+        conn.close();
     }
 
-    public int getCount() throws SQLException {
-        Connection c = connectionMaker.makeConnection();
-        PreparedStatement ps = c.prepareStatement(
-                "select count(*) from users");
+//    public int getCount() throws SQLException {
+//        Connection c = connectionMaker.makeConnection();
+//        PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM users");
+//
+//        ResultSet rs = ps.executeQuery();
+//        rs.next();
+//        int count = rs.getInt(1);
+//
+//        rs.close();
+//        ps.close();
+//        c.close();
+//
+//        return count;
+//    }
+    public int getCount() throws SQLException, ClassNotFoundException {
+        Connection conn = connectionMaker.makeConnection();
+
+        PreparedStatement ps = conn.prepareStatement("SELECT count(*) FROM users");
 
         ResultSet rs = ps.executeQuery();
         rs.next();
@@ -81,7 +104,7 @@ public class UserDao {
 
         rs.close();
         ps.close();
-        c.close();
+        conn.close();
 
         return count;
     }

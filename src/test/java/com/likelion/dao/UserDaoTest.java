@@ -21,31 +21,39 @@ class UserDaoTest {
     ApplicationContext context;
 
     @Test
-    void addAndSelect() throws SQLException {
+    void addAndSelect() throws SQLException, ClassNotFoundException {
+        User user1 = new User("1", "juwan", "1234");
+
         UserDao userDao = context.getBean("awsUserDao", UserDao.class);
         userDao.deleteAll();
-        String id = "10";
+        assertEquals(0, userDao.getCount());
 
-        User user = new User(id,"juwan", "110055qwe");
-        userDao.add(user);
+        userDao.add(user1);
         assertEquals(1, userDao.getCount());
+        User selectedUser = userDao.findById(user1.getId());
 
-
-        User userSelecte = userDao.findById(id);
-        assertEquals("110055qwe",userSelecte.getPassword());
+        assertEquals(user1.getName(), selectedUser.getName());
+        assertEquals(user1.getPassword(), selectedUser.getPassword());
     }
 
+    @Test
+    void count() throws SQLException, ClassNotFoundException {
+        User user1 = new User("1", "juwan", "1234");
+        User user2 = new User("2", "kissup", "2345");
+        User user3 = new User("3", "jeongseok", "3456");
 
-//    @Test
-//    void addAndSelect() throws SQLException {
-//        UserDao userDao = new UserDao();
-//        String id = "23";
-//
-//        User user = new User(id, "juwan","qweqwrqwr22");
-//        userDao.add(user);
-//
-//        User selectedUser = userDao.findById(id);
-//
-//        Assertions.assertEquals("juwan",selectedUser.getName());
-//    }
+        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+        userDao.deleteAll();
+        assertEquals(0, userDao.getCount());
+
+        userDao.add(user1);
+        assertEquals(1, userDao.getCount());
+
+        userDao.add(user2);
+        assertEquals(2, userDao.getCount());
+
+        userDao.add(user3);
+        assertEquals(3, userDao.getCount());
+    }
+
 }
