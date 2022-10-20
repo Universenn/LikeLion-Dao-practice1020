@@ -23,10 +23,13 @@ class UserDaoTest {
     @Test
     void addAndSelect() throws SQLException {
         UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+        userDao.deleteAll();
         String id = "10";
 
         User user = new User(id,"juwan", "110055qwe");
         userDao.add(user);
+        assertEquals(1, userDao.getCount());
+
 
         User userSelecte = userDao.findById(id);
         assertEquals("110055qwe",userSelecte.getPassword());
