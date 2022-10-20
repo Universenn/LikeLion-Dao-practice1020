@@ -2,10 +2,12 @@ package com.likelion.dao;
 
 import com.likelion.domain.User;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -20,18 +22,24 @@ class UserDaoTest {
     @Autowired
     ApplicationContext context;
 
+    UserDao userDao;
+    @BeforeEach
+    void setUp() {
+        this.userDao = context.getBean("awsUserDao", UserDao.class);
+    }
+
     @Test
     void addAndSelect() throws SQLException, ClassNotFoundException {
         User user1 = new User("1", "juwan", "1234");
 
-        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+//        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
 
         userDao.add(user1);
         assertEquals(1, userDao.getCount());
-        User selectedUser = userDao.findById(user1.getId());
 
+        User selectedUser = userDao.findById(user1.getId());
         assertEquals(user1.getName(), selectedUser.getName());
         assertEquals(user1.getPassword(), selectedUser.getPassword());
     }
@@ -42,7 +50,7 @@ class UserDaoTest {
         User user2 = new User("2", "kissup", "2345");
         User user3 = new User("3", "jeongseok", "3456");
 
-        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+//        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
 
@@ -56,4 +64,10 @@ class UserDaoTest {
         assertEquals(3, userDao.getCount());
     }
 
+    @Test
+    void findById() {
+        assertThrows(EmptyResultDataAccessException.class,() ->{
+            userDao.findById("30");
+        });
+    }
 }
