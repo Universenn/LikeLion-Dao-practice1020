@@ -77,6 +77,7 @@ public class UserDao {
         try {
             c = connectionMaker.makeConnection();
             ps = c.prepareStatement("DELETE FROM users");
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }finally { // error 가 나도 실행되는 블럭
