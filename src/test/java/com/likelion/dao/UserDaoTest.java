@@ -3,6 +3,7 @@ package com.likelion.dao;
 import com.likelion.domain.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ class UserDaoTest {
     }
 
     @Test
+    @DisplayName("추가 및 찾기")
     void addAndSelect() throws SQLException, ClassNotFoundException {
         User user1 = new User("1", "juwan", "1234");
 
@@ -45,6 +47,7 @@ class UserDaoTest {
     }
 
     @Test
+    @DisplayName("데이터 개수 확인")
     void count() throws SQLException, ClassNotFoundException {
         User user1 = new User("1", "juwan", "1234");
         User user2 = new User("2", "kissup", "2345");
@@ -65,6 +68,7 @@ class UserDaoTest {
     }
 
     @Test
+    @DisplayName("id 찾기")
     void findById() {
         assertThrows(EmptyResultDataAccessException.class,() ->{
             userDao.findById("30");

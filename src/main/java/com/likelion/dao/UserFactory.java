@@ -11,16 +11,30 @@ public class UserFactory {
     // 조립을 해준다.?
     @Bean
     public UserDao awsUserDao(){
-        AwsConnectionMaker awsConnectionMaker = new AwsConnectionMaker();
-        UserDao userDao = new UserDao();
-        return userDao;
+//        AwsConnectionMaker awsConnectionMaker = new AwsConnectionMaker();
+//        UserDao userDao = new UserDao();
+//        return userDao;
+        return new UserDao(awsConnectionMaker());     
     }
     @Bean
     public UserDao localUserDao(){
-        LocalConnectionMaker localConnectionMaker = new LocalConnectionMaker();
-        UserDao userDao = new UserDao();
-        return userDao;
+//        LocalConnectionMaker localConnectionMaker = new LocalConnectionMaker();
+//        UserDao userDao = new UserDao();
+//        return userDao;
+        return new UserDao(LocalConnectionMaker());
     }
+
+
+    @Bean
+    public ConnectionMaker awsConnectionMaker() {
+        return new AwsConnectionMaker();
+    }
+
+    @Bean
+    public ConnectionMaker LocalConnectionMaker() {
+        return new LocalConnectionMaker();
+    }
+
 
 
 }

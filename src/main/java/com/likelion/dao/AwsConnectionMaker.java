@@ -9,6 +9,11 @@ public class AwsConnectionMaker implements ConnectionMaker{
 
     @Override
     public Connection makeConnection() throws SQLException {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         Map<String, String> env = System.getenv();
         // DB접속 (ex sql workbeanch실행)
         Connection c = DriverManager.getConnection(env.get("DB_HOST"),
