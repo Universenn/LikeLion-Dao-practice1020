@@ -14,6 +14,41 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
+    public void jdbcContextWithStatementStaegy(StatementStrategy stmt) throws SQLException{
+        Connection c = null;
+        PreparedStatement ps = null;
+        // connection, PreparedStatement할때 에러가 나도 ps.close(), c.close()를 하기 위한 처리
+        try {
+            c = connectionMaker.makeConnection();
+//            ps = new DeleteAllStrategy().makePreparedStatement(c);
+            ps = stmt.makePreparedStatement(c);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally { // error 가 나도 실행되는 블럭
+            if (ps != null){
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+        }
+    }
+
+    public void deleteAll() throws SQLException, ClassNotFoundException {
+        jdbcContextWithStatementStaegy(new DeleteAllStrategy());
+    }
+
+
     public void add(User user) throws SQLException {
         Map<String, String> env = System.getenv();
         // DB 실행
@@ -45,36 +80,6 @@ public class UserDao {
         if (user == null) throw new EmptyResultDataAccessException(1);
 
         return user;
-    }
-
-
-    public void deleteAll() throws SQLException, ClassNotFoundException {
-        Connection c = null;
-        PreparedStatement ps = null;
-        // connection, PreparedStatement할때 에러가 나도 ps.close(), c.close()를 하기 위한 처리
-        try {
-            c = connectionMaker.makeConnection();
-            ps = new DeleteAllStrategy().makePreparedStatement(c);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }finally { // error 가 나도 실행되는 블럭
-            if (ps != null){
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-        }
     }
 
     public int getCount() throws SQLException, ClassNotFoundException {
