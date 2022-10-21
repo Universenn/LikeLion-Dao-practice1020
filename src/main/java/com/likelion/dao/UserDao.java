@@ -50,19 +50,22 @@ public class UserDao {
 
 
     public void add(User user) throws SQLException {
-        Map<String, String> env = System.getenv();
-        // DB 실행
-        Connection c = connectionMaker.makeConnection();
-
-        // Query 문 작성
-        PreparedStatement ps = c.prepareStatement("INSERT INTO users (id,name,password) values (?,?,?);");
-        ps.setString(1,user.getId());
-        ps.setString(2,user.getName());
-        ps.setString(3,user.getPassword());
-
-        ps.executeUpdate();
-        ps.close();
-        c.close();
+        AddStrategy st = new AddStrategy(user);
+        jdbcContextWithStatementStaegy(st);
+//
+//        Map<String, String> env = System.getenv();
+//        // DB 실행
+//        Connection c = connectionMaker.makeConnection();
+//
+//        // Query 문 작성
+//        PreparedStatement ps = c.prepareStatement("INSERT INTO users (id,name,password) values (?,?,?);");
+//        ps.setString(1,user.getId());
+//        ps.setString(2,user.getName());
+//        ps.setString(3,user.getPassword());
+//
+//        ps.executeUpdate();
+//        ps.close();
+//        c.close();
 
     }
     public User findById(String id) throws SQLException {
