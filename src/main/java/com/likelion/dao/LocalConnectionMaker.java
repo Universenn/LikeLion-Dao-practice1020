@@ -7,18 +7,15 @@ import java.util.Map;
 
 public class LocalConnectionMaker implements ConnectionMaker{
     @Override
-    public Connection makeConnection() throws SQLException {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    public Connection makeConnection() throws SQLException, ClassNotFoundException {
         Map<String, String> env = System.getenv();
-        // DB접속 (ex sql workbeanch실행)
-        Connection c = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/likelion-db",
-                "root",
-                "123456789");
-        return c;
+        String dbHost = env.get("DB_HOST");
+        String dbName = env.get("DB_NAME");
+        String dbPassword = env.get("DB_PASSWORD");
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(dbHost, dbName, dbPassword);
+
+        return conn;
     }
 }

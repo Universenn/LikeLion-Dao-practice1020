@@ -3,55 +3,85 @@ package com.likelion.dao;
 import com.likelion.domain.User;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Map;
 
 public class UserDao {
 
-    private ConnectionMaker connectionMaker;
+    private final DataSource dataSource;
 
-    public UserDao(ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    private final JdbcContext jdbcContext;
+
+//    private ConnectionMaker connectionMaker;
+//
+//    public UserDao(ConnectionMaker connectionMaker) {
+//        this.connectionMaker = connectionMaker;
+//    }
+
+
+    public UserDao(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcContext = new JdbcContext(dataSource);
     }
 
-    public void jdbcContextWithStatementStaegy(StatementStrategy stmt) throws SQLException{
-        Connection c = null;
-        PreparedStatement ps = null;
-        // connection, PreparedStatement할때 에러가 나도 ps.close(), c.close()를 하기 위한 처리
-        try {
-            c = connectionMaker.makeConnection();
-//            ps = new DeleteAllStrategy().makePreparedStatement(c);
-            ps = stmt.makePreparedStatement(c);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }finally { // error 가 나도 실행되는 블럭
-            if (ps != null){
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-        }
-    }
+//    public void jdbcContextWithStatementStaegy(StatementStrategy stmt) throws SQLException{
+//        Connection c = null;
+//        PreparedStatement ps = null;
+//        // connection, PreparedStatement할때 에러가 나도 ps.close(), c.close()를 하기 위한 처리
+//        try {
+//            c = connectionMaker.makeConnection();
+////            ps = new DeleteAllStrategy().makePreparedStatement(c);
+//            ps = stmt.makePreparedStatement(c);
+//            ps.executeUpdate();
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        } catch (ClassNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } finally { // error 가 나도 실행되는 블럭
+//            if (ps != null){
+//                try {
+//                    ps.close();
+//                } catch (SQLException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//            if (c != null) {
+//                try {
+//                    c.close();
+//                } catch (SQLException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//
+//        }
+//    }
 
     public void deleteAll() throws SQLException, ClassNotFoundException {
-        jdbcContextWithStatementStaegy(new DeleteAllStrategy());
+//        jdbcContextWithStatementStaegy(new DeleteAllStrategy());
+        jdbcContext.workWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                return conn.prepareStatement("delete from users");
+            }
+        });
     }
 
 
-    public void add(User user) throws SQLException {
-        AddStrategy st = new AddStrategy(user);
-        jdbcContextWithStatementStaegy(st);
+    public void add(User user) throws SQLException, ClassNotFoundException {
+        jdbcContext.workWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection conn) throws SQLException {
+                PreparedStatement pstmt = conn.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
+                pstmt.setString(1, user.getId());
+                pstmt.setString(2, user.getName());
+                pstmt.setString(3, user.getPassword());
+
+                return pstmt;
+            }
+        });
+//        AddStrategy st = new AddStrategy(user);
+//        jdbcContextWithStatementStaegy(st);
 //
 //        Map<String, String> env = System.getenv();
 //        // DB 실행
@@ -68,8 +98,8 @@ public class UserDao {
 //        c.close();
 
     }
-    public User findById(String id) throws SQLException {
-        Connection c = connectionMaker.makeConnection();
+    public User findById(String id) throws SQLException, ClassNotFoundException {
+        Connection c = dataSource.getConnection();
         PreparedStatement ps = c.prepareStatement("SELECT * FROM users WHERE id = ?");
         ps.setString(1,id);
         ResultSet rs = ps.executeQuery();
@@ -91,7 +121,7 @@ public class UserDao {
         ResultSet rs = null;
 
         try {
-            c = connectionMaker.makeConnection();
+            c = dataSource.getConnection();
             ps = c.prepareStatement("SELECT count(*) FROM users");
 
             rs = ps.executeQuery();

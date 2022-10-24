@@ -21,20 +21,22 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = UserFactory.class)
 class UserDaoTest {
     @Autowired
-    ApplicationContext context;
+    private ApplicationContext context;
+    private UserDao userDao;
+    private User user1;
+    private User user2;
+    private User user3;
 
-    UserDao userDao;
     @BeforeEach
     void setUp() {
-        this.userDao = context.getBean("awsUserDao", UserDao.class);
+        userDao = context.getBean("awsUserDao", UserDao.class);
+        user1 = new User("1", "박성철", "1234");
+        user2 = new User("2", "이길원", "2345");
+        user3 = new User("3", "박범진", "3456");
     }
 
     @Test
-    @DisplayName("추가 및 찾기")
-    void addAndSelect() throws SQLException, ClassNotFoundException {
-        User user1 = new User("1", "juwan", "1234");
-
-//        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+    void addAndGet() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
 
@@ -47,13 +49,7 @@ class UserDaoTest {
     }
 
     @Test
-    @DisplayName("데이터 개수 확인")
     void count() throws SQLException, ClassNotFoundException {
-        User user1 = new User("1", "juwan", "1234");
-        User user2 = new User("2", "kissup", "2345");
-        User user3 = new User("3", "jeongseok", "3456");
-
-//        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
 
@@ -68,9 +64,8 @@ class UserDaoTest {
     }
 
     @Test
-    @DisplayName("id 찾기")
-    void findById() {
-        assertThrows(EmptyResultDataAccessException.class,() ->{
+    void findById(){
+        assertThrows(EmptyResultDataAccessException.class, ()->{
             userDao.findById("30");
         });
     }

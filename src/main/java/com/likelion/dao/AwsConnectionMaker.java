@@ -8,16 +8,16 @@ import java.util.Map;
 public class AwsConnectionMaker implements ConnectionMaker{
 
     @Override
-    public Connection makeConnection() throws SQLException {
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    public Connection makeConnection() throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
         Map<String, String> env = System.getenv();
-        // DB접속 (ex sql workbeanch실행)
-        Connection c = DriverManager.getConnection(env.get("DB_HOST"),
-                env.get("DB_USER"), env.get("DB_PASSWORD"));
-        return c;
+        String dbHost = env.get("DB_HOST");
+        String dbName = env.get("DB_NAME");
+        String dbPassword = env.get("DB_PASSWORD");
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(dbHost, dbName, dbPassword);
+
+        return conn;
     }
 }
